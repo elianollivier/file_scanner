@@ -1,21 +1,34 @@
+use clap::Parser;
 use crate::models::FileData;
 use crate::views;
 
-/// Contrôleur principal : reçoit les chemins, charge les modèles et appelle la vue
+/// Définit les arguments CLI
+#[derive(Parser, Debug)]
+#[command(
+    name = "file_teacher",
+    version,
+    about = "Charge et affiche le contenu de fichiers donnés en argument",
+    long_about = None
+)]
+struct Args {
+    /// Chemins vers les fichiers à "enseigner"
+    #[arg(value_name = "FILE", required = true)]
+    files: Vec<String>,
+}
+
+/// Point d’entrée du contrôleur principal
 pub fn run() {
-    // Exemple statique ; on remplacera plus tard par une lecture d’arguments CLI
-    let paths = vec![
-        r"C:\Users\elian\OneDrive\Documents\Liste\CVT.py",
-        r"C:\Users\elian\Downloads\TP8_GABORIT_LEO\tp8_js\views\pages\suggest\index.ejs",
-    ];
+    // Parse les arguments
+    let args = Args::parse();
 
     let mut files = Vec::new();
-    for p in paths {
-        match FileData::from_path(p) {
+    for path in &args.files {
+        match FileData::from_path(path) {
             Ok(fd) => files.push(fd),
-            Err(e) => eprintln!("Erreur en lisant '{}': {}", p, e),
+            Err(e) => eprintln!("Erreur en lisant '{}': {}", path, e),
         }
     }
 
+    // Passe la liste à la vue
     views::display(files);
 }
